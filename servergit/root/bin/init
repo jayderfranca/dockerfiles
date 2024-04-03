@@ -1,0 +1,10 @@
+#!/bin/sh
+
+/bin/chown -R lighttpd:lighttpd /srv/repositories
+/bin/chown -R lighttpd:wheel /var/log/lighttpd
+
+if [ -z "$1" ]; then
+  /usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
+fi
+
+exec "$@"
