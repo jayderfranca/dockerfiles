@@ -1,7 +1,7 @@
 TAG ?= 1.0.0
 IMAGE ?= servergit
 CONTAINER ?= servergit
-CUSTOM ?= /.local/opt/custom
+CUSTOM ?= ~/.local/opt/custom
 
 default: build
 
