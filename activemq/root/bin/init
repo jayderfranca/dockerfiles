@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+ACTIVEMQ_HOME="/opt/activemq"
+
+# alteracoes no arquivo env
+sed -i 's|# ACTIVEMQ_HOME="<Installationdir>/"|ACTIVEMQ_HOME="/opt/activemq"|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|# ACTIVEMQ_BASE|ACTIVEMQ_BASE|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|# ACTIVEMQ_CONF="$ACTIVEMQ_BASE/conf"|ACTIVEMQ_CONF="/var/opt/activemq/conf"|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|# ACTIVEMQ_DATA="$ACTIVEMQ_BASE/data"|ACTIVEMQ_DATA="/var/opt/activemq/data"|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|# ACTIVEMQ_TMP="$ACTIVEMQ_BASE/tmp"|ACTIVEMQ_TMP="/tmp/activemq"|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|ACTIVEMQ_OPTS="$ACTIVEMQ_OPTS_MEMORY|ACTIVEMQ_OPTS="$ACTIVEMQ_OPTS_MEMORY -Dlog4j.configuration=file://$ACTIVEMQ_HOME/config/log4j.properties|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|-Djava.util.logging.config.file=logging.properties|-Djava.util.logging.config.file=$ACTIVEMQ_HOME/config/logging.properties|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|-Djava.security.auth.login.config=$ACTIVEMQ_CONF/login.config|-Djava.security.auth.login.config=$ACTIVEMQ_HOME/config/login.config|g' ${ACTIVEMQ_HOME}/bin/env
+sed -i 's|# ACTIVEMQ_PIDFILE="$ACTIVEMQ_DATA/activemq.pid"|ACTIVEMQ_PIDFILE="/run/activemq.pid"|g' ${ACTIVEMQ_HOME}/bin/env
+
+# alteracoes no arquivo log4j.properties
+sed -i 's|log4j.appender.logfile.file=${activemq.base}/data/activemq.log|log4j.appender.logfile.file=/var/log/activemq/activemq.log|g' ${ACTIVEMQ_HOME}/config/log4j.properties
+sed -i 's|log4j.appender.audit.file=${activemq.base}/data/audit.log|log4j.appender.audit.file=/var/log/activemq/audit.log|g' ${ACTIVEMQ_HOME}/config/log4j.properties
+
+# alteracao no shell para pesquisa do pid
+sed -i 's/ps -p "${ACTIVEMQ_PID}"/ps | grep "${ACTIVEMQ_PID}"/g' ${ACTIVEMQ_HOME}/bin/activemq
+
+if [ -z "$1" ]; then
+  /opt/activemq/bin/activemq console
+fi
+
+exec "$@"
