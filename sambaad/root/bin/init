@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+echo "" > /dev/stdout
+FILE_LOCK=/var/lock/setup
+
+# setup localtime
+if [ -f /usr/share/zoneinfo/${TZ} -a ! -f /etc/localtime ];then
+	ln -s /usr/share/zoneinfo/${TZ} /etc/localtime
+fi
+
+# setup ntp signed
+install -d /var/lib/samba/ntp_signd
+chown root:chrony /var/lib/samba/ntp_signd/
+chmod 750 /var/lib/samba/ntp_signd/
+
+if [ ! -f "${FILE_LOCK}" ];then
+	echo "Initializing samba database..."
+	ADMIN_PASSWORD=${ADMIN_PASSWORD:-$(pwgen -cny 20 1)}
+	KERBEROS_PASSWORD=${KERBEROS_PASSWORD:-$(pwgen -cny 20 1)}
+	echo "Samba administrator password: ${ADMIN_PASSWORD}"
+	echo "Kerberos KDC database master key: ${KERBEROS_PASSWORD}"
+
+	touch ${FILE_LOCK}
+fi
+
+# run main process
+if [ -z "$1" ]; then
+	/usr/bin/supervisord --nodaemon --configuration /etc/supervisord.conf
+fi
+
+# otherwise run command user
+$@
