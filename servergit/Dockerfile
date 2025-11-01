@@ -19,9 +19,3 @@ RUN chmod +x /bin/init
 VOLUME /srv/repositories
 
 ENTRYPOINT ["/bin/init"]
-
-
-
-
-
-
